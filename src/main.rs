@@ -1,5 +1,5 @@
 use hash::cli;
-use hash::hash_file_sha256;
+use hash::{hash_file_md5, hash_file_sha256};
 use std::{env, path::MAIN_SEPARATOR_STR};
 
 fn get_self_name() -> String {
@@ -21,6 +21,7 @@ fn get_self_name() -> String {
 fn main() {
     match get_self_name().as_str() {
         "sha256sum" => cli(hash_file_sha256),
+        "md5sum" => cli(hash_file_md5),
         s => {
             eprintln!("Not support: {}", s);
         }
