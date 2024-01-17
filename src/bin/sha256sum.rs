@@ -1,5 +1,5 @@
-use hash::{cli, sha256};
+use hash::{cli, sha256::hash_file};
 
 fn main() {
-    cli(sha256::check, sha256::hash_file)
+    cli(hash_file)
 }

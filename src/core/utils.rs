@@ -1,4 +1,4 @@
-use crate::types::{HashLine, Lines};
+use super::types::{HashLine, Lines};
 use std::{
     fs::File,
     io::{self, BufRead},

@@ -1,4 +1,4 @@
-use crate::{parse, types::HashLine};
+use crate::{parse, HashLine};
 use clap::Parser;
 use glob::glob;
 use std::path::Path;
@@ -11,17 +11,20 @@ struct Args {
     check: bool,
 }
 
-type TypeCheck = fn(&HashLine) -> bool;
 type TypeHashFile = fn(&Path) -> Option<HashLine>;
 
-pub fn cli(check: TypeCheck, hash_file: TypeHashFile) {
+pub fn cli(hash_file: TypeHashFile) {
     let args = Args::parse();
 
     if args.check {
         for item in args.item {
             if let Some(lines) = parse(&item) {
                 for line in lines {
-                    if check(&line) {
+                    let check = match hash_file(Path::new(&line.file)) {
+                        Some(d) => d.hash == line.hash,
+                        None => false,
+                    };
+                    if check {
                         println!("{}: OK", line.file)
                     } else {
                         println!("{}: do NOT match", line.file)
