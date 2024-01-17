@@ -1,7 +1,7 @@
 pub mod md5;
+mod parser;
 pub mod sha256;
 mod types;
-mod utils;
 
+pub use parser::parse;
 pub use types::HashLine;
-pub use utils::parse;
