@@ -4,7 +4,7 @@ use std::{fs::File, io::Read, path::Path};
 
 const BUF_SIZE: usize = 4096;
 
-pub fn hash_file_md5(path: &Path) -> Option<HashLine> {
+pub fn hash_file(path: &Path) -> Option<HashLine> {
     let mut file = match File::open(path) {
         Ok(file) => file,
         Err(_) => return None,
@@ -14,9 +14,11 @@ pub fn hash_file_md5(path: &Path) -> Option<HashLine> {
     let mut buf = [0u8; BUF_SIZE];
     loop {
         if let Ok(size) = file.read(&mut buf) {
-            hasher.update(buf.as_slice());
             if size < BUF_SIZE {
+                hasher.update(&buf[..size]);
                 break;
+            } else {
+                hasher.update(buf);
             }
         } else {
             return None;
