@@ -11,38 +11,49 @@ struct Args {
     check: bool,
 }
 
-type TypeHashFile = fn(&Path) -> Option<HashLine>;
+type FuncHashFile = fn(&Path) -> Option<HashLine>;
 
-pub fn cli(hash_file: TypeHashFile) {
+pub fn run(hash_file: FuncHashFile) {
     let args = Args::parse();
 
     if args.check {
-        for item in args.item {
-            if let Some(lines) = parse(&item) {
-                for line in lines {
-                    let check = match hash_file(Path::new(&line.file)) {
-                        Some(d) => d.hash == line.hash,
-                        None => false,
-                    };
-                    if check {
-                        println!("{}: OK", line.file)
-                    } else {
-                        println!("{}: do NOT match", line.file)
-                    }
-                }
+        fn_check(hash_file, args.item)
+    } else {
+        fn_hash(hash_file, args.item)
+    }
+}
+
+fn fn_check(hash_file: FuncHashFile, items: Vec<String>) {
+    for item in items {
+        let Some(lines) = parse(&item) else {
+            continue;
+        };
+        for line in lines {
+            let check = match hash_file(Path::new(&line.file)) {
+                Some(d) => d.hash == line.hash,
+                None => false,
+            };
+            if check {
+                println!("{}: OK", line.file)
+            } else {
+                println!("{}: do NOT match", line.file)
             }
         }
-    } else {
-        for item in args.item {
-            if let Ok(entries) = glob(&item) {
-                for entry in entries {
-                    if let Ok(file) = entry {
-                        if let Some(line) = hash_file(&file) {
-                            println!("{}", line)
-                        }
-                    }
-                }
+    }
+}
+
+fn fn_hash(hash_file: FuncHashFile, items: Vec<String>) {
+    for item in items {
+        let Ok(paths) = glob(&item) else {
+            continue;
+        };
+        for path in paths {
+            let Ok(path) = path else {
+                continue;
             };
+            if let Some(line) = hash_file(&path) {
+                println!("{}", line)
+            }
         }
     }
 }
